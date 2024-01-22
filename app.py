@@ -1,8 +1,12 @@
 from fastapi import FastAPI, Form, Header, Depends
 import uvicorn
 import requests
+import logging
+
 
 app = FastAPI()
+logging.basicConfig(level=logging.INFO)
+
 
 
 def upload_image_to_linkedin(oauth_token, upload_url, image_content, content_type):
@@ -17,11 +21,15 @@ def upload_image_to_linkedin(oauth_token, upload_url, image_content, content_typ
 
     response = requests.request("POST", url, headers=headers, data=payload)
 
-    print(response.text, response.status_code)
+    logging.info(f"LINKEDIN UPLOAD {response.text} WITH REPONSE CODE: {response.status_code}")
+    return response.status_code
+
 
 def getImageData(image_url):
     image_url = f"https:{image_url}"
     response = requests.get(image_url)
+
+    logging.info(f"{image_url} -> RESPONSE : {response.content}")
 
     # Check if the request was successful (status code 200)
     if response.status_code == 200:
@@ -43,8 +51,6 @@ def get_headers(
 
 # Dependency to get form data
 def get_form_data(contentUrl: str = Form(...)):
-    print(contentUrl);
-    print(type(contentUrl));
     return {"contentUrl": contentUrl}
 
 
@@ -55,14 +61,21 @@ async def process_data(
 ):
     img_content = getImageData(form_data["contentUrl"])
 
-    upload_image_to_linkedin(
+    response_code = upload_image_to_linkedin(
         oauth_token = headers["Authorization"], 
         upload_url = headers["Upload_Url"], 
         image_content = img_content, 
         content_type = headers["Content_Type"]
     )
 
-    return {"result":"SUCCESS","form_data": form_data, "headers": headers}
+    return {
+        "result":"SUCCESS", 
+        "responseCode": response_code ,
+        "formData": form_data, 
+        "headers": headers,
+        "imgContent": img_content,
+        "imgContentType": type(img_content)
+    }
 
 
 
