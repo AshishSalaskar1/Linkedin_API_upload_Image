@@ -72,9 +72,7 @@ async def process_data(
         "result":"SUCCESS", 
         "responseCode": response_code ,
         "formData": form_data, 
-        "headers": headers,
-        # "imgContent": img_content,
-        "imgContentType": type(img_content)
+        "headers": headers
     }
 
 
