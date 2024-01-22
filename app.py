@@ -64,7 +64,6 @@ async def process_data(
     response_code = upload_image_to_linkedin(
         oauth_token = headers["Authorization"], 
         upload_url = headers["Upload_Url"], 
-        image_content = img_content, 
         content_type = headers["Content_Type"]
     )
 
