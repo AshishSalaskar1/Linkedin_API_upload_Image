@@ -36,7 +36,7 @@ def upload_image_to_linkedin(oauth_token, upload_url, image_path):
 
 def getImageData(image_url):
     image_url = f"https:{image_url}"
-    local_filename = f"img.{image_url.split('.')[-1]}"
+    local_filename = f"/tmp/img.{image_url.split('.')[-1]}"
     response = requests.get(image_url)
 
     logging.error(image_url)
