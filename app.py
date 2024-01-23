@@ -2,39 +2,53 @@ from fastapi import FastAPI, Form, Header, Depends
 import uvicorn
 import requests
 import logging
+import mimetypes
 
 
 app = FastAPI()
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.ERROR)
 
 
+def read_image(image_path):
+    with open(image_path, 'rb') as file:
+        content_type, _ = mimetypes.guess_type(image_path)
+        # image_base64 = base64.b64encode(file.read()).decode('utf-8')
 
-def upload_image_to_linkedin(oauth_token, upload_url, image_content, content_type):
+        return file.read(), content_type
+    
+def upload_image_to_linkedin(oauth_token, upload_url, image_path):
 
     url = upload_url
+    img_content, content_type = read_image(image_path)
 
-    payload = image_content
+    payload = img_content
     headers = {
-        'Authorization': f'Bearer {oauth_token}',
+        'Authorization': f'{oauth_token}',
         'Content-Type': content_type    
     }
 
+    # print(img_content)
+
     response = requests.request("POST", url, headers=headers, data=payload)
 
-    logging.info(f"LINKEDIN UPLOAD {response.text} WITH REPONSE CODE: {response.status_code}")
-    return response.status_code
-
+    print(response.text, response.status_code)
 
 def getImageData(image_url):
     image_url = f"https:{image_url}"
+    local_filename = f"img.{image_url.split('.')[-1]}"
     response = requests.get(image_url)
 
-    logging.info(f"{image_url} -> RESPONSE : {response.content}")
+    logging.error(image_url)
+    # logging.info(f"{image_url} -> RESPONSE : {response.content}")
 
     # Check if the request was successful (status code 200)
     if response.status_code == 200:
-        image_data = response.content
-        return image_data
+        with open(local_filename, 'wb') as file:
+            file.write(response.content)
+
+        return local_filename
+        # image_data = response.content
+        # return image_data
 
 
 # Dependency to get headers
@@ -59,13 +73,12 @@ async def process_data(
     form_data: dict = Depends(get_form_data),
     headers: dict = Depends(get_headers)
 ):
-    img_content = getImageData(form_data["contentUrl"])
+    img_path = getImageData(form_data["contentUrl"])
 
     response_code = upload_image_to_linkedin(
         oauth_token = headers["Authorization"], 
         upload_url = headers["Upload_Url"], 
-        image_content = img_content, 
-        content_type = headers["Content_Type"]
+        image_path = img_path
     )
 
     return {
