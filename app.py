@@ -31,7 +31,8 @@ def upload_image_to_linkedin(oauth_token, upload_url, image_path):
 
     response = requests.request("POST", url, headers=headers, data=payload)
 
-    print(response.text, response.status_code)
+    print("TEXT",response.text,"CODE:",response.status_code)
+    return response.status_code
 
 def getImageData(image_url):
     image_url = f"https:{image_url}"
