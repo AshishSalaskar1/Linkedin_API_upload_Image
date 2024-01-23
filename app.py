@@ -89,6 +89,9 @@ async def process_data(
         "headers": headers
     }
 
+@app.get("/hello")
+async def hello():
+    return "HELLO FROM THIS API"
 
 
 if __name__ == "__main__":
