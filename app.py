@@ -101,6 +101,11 @@ async def process_data(
 
 @app.get("/metrics")
 async def get_metrics():
+    if not os.path.exists("li_logs.txt"):
+        return {
+            "logs": []
+        }
+    
     with open("/tmp/li_logs.txt") as f:
         logs = f.readlines()
     
