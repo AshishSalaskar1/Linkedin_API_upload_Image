@@ -9,6 +9,8 @@ from datetime import datetime
 app = FastAPI()
 logging.basicConfig(level=logging.ERROR)
 
+logs = []
+
 def update_local_logs(img_url):
     if not os.path.exists("li_logs.txt"):
         with open("/tmp/li_logs.txt","w") as f:
@@ -82,6 +84,7 @@ async def process_data(
     form_data: dict = Depends(get_form_data),
     headers: dict = Depends(get_headers)
 ):
+    global logs
     img_path = getImageData(form_data["contentUrl"])
 
     response_code = upload_image_to_linkedin(
@@ -90,7 +93,11 @@ async def process_data(
         image_path = img_path
     )
 
-    update_local_logs(img_url=form_data["contentUrl"])
+    # update_local_logs(img_url=form_data["contentUrl"])
+    logs.append({
+        "url": form_data["contentUrl"],
+        "timestamp": str(datetime.now())
+    })
 
     return {
         "result":"SUCCESS", 
@@ -101,17 +108,22 @@ async def process_data(
 
 @app.get("/metrics")
 async def get_metrics():
-    if not os.path.exists("/tmp/li_logs.txt"):
-        return {
-            "logs": []
-        }
-    
-    with open("/tmp/li_logs.txt") as f:
-        logs = f.readlines()
-    
+    global logs
     return {
+        "count": len(logs),
         "logs": logs
     }
+    # if not os.path.exists("/tmp/li_logs.txt"):
+    #     return {
+    #         "logs": []
+    #     }
+    
+    # with open("/tmp/li_logs.txt") as f:
+    #     logs = f.readlines()
+    
+    # return {
+    #     "logs": logs
+    # }
 
 @app.get("/hello")
 async def hello():
