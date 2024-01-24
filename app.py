@@ -101,7 +101,7 @@ async def process_data(
 
 @app.get("/metrics")
 async def get_metrics():
-    if not os.path.exists("li_logs.txt"):
+    if not os.path.exists("/tmp/li_logs.txt"):
         return {
             "logs": []
         }
