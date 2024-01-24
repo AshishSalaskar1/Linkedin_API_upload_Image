@@ -11,11 +11,11 @@ logging.basicConfig(level=logging.ERROR)
 
 def update_local_logs(img_url):
     if not os.path.exists("li_logs.txt"):
-        with open("li_logs.txt","w") as f:
+        with open("/tmp/li_logs.txt","w") as f:
             f.write(f"IMAGE_URL | TIMESTAMP\n")
 
     timestamp = str(datetime.now())
-    with open("li_logs.txt","a") as f:
+    with open("/tmp/li_logs.txt","a") as f:
         f.write(f"{img_url} | {timestamp}\n")
 
 
@@ -44,7 +44,7 @@ def upload_image_to_linkedin(oauth_token, upload_url, image_path):
 
 def getImageData(image_url):
     image_url = f"https:{image_url}"
-    local_filename = f"img.{image_url.split('.')[-1]}"
+    local_filename = f"/tmp/img.{image_url.split('.')[-1]}"
     response = requests.get(image_url)
 
     logging.error(image_url)
@@ -101,7 +101,7 @@ async def process_data(
 
 @app.get("/metrics")
 async def get_metrics():
-    with open("li_logs.txt") as f:
+    with open("/tmp/li_logs.txt") as f:
         logs = f.readlines()
     
     return {
